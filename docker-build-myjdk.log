@@ -1,0 +1,254 @@
+   docker build -t myjdk:v1 .
+Sending build context to Docker daemon   5.12kB
+Step 1/8 : FROM oraclelinux:8-slim
+8-slim: Pulling from library/oraclelinux
+e69ec1c7b788: Pull complete 
+Digest: sha256:dc9418229420fea921e67351e96971563ca37b91b17617554884435bd7097705
+Status: Downloaded newer image for oraclelinux:8-slim
+ ---> f7242e0f9127
+Step 2/8 : RUN set -eux;     microdnf install     gzip     tar         binutils     freetype fontconfig     ;     microdnf clean all
+ ---> Running in 25e226f0b843
++ microdnf install gzip tar binutils freetype fontconfig
+Downloading metadata...
+Downloading metadata...
+Package                                     Repository            Size
+Installing:                                                           
+ aajohan-comfortaa-fonts-3.001-2.el8.noarch ol8_baseos_latest 151.7 kB
+ binutils-2.30-79.0.1.el8.x86_64            ol8_baseos_latest   6.0 MB
+ fontconfig-2.13.1-3.el8.x86_64             ol8_baseos_latest 281.1 kB
+ fontpackages-filesystem-1.44-22.el8.noarch ol8_baseos_latest  16.2 kB
+ freetype-2.9.1-4.el8_3.1.x86_64            ol8_baseos_latest 403.0 kB
+ gzip-1.9-9.el8.x86_64                      ol8_baseos_latest 170.8 kB
+ libpng-2:1.6.34-5.el8.x86_64               ol8_baseos_latest 128.9 kB
+ tar-2:1.30-5.el8.x86_64                    ol8_baseos_latest 857.9 kB
+Transaction Summary:
+ Installing:        8 packages
+ Reinstalling:      0 packages
+ Upgrading:         0 packages
+ Removing:          0 packages
+ Downgrading:       0 packages
+Downloading packages...
+Running transaction test...
+Installing: fontpackages-filesystem;1.44-22.el8;noarch;ol8_baseos_latest
+Installing: aajohan-comfortaa-fonts;3.001-2.el8;noarch;ol8_baseos_latest
+Installing: libpng;2:1.6.34-5.el8;x86_64;ol8_baseos_latest
+Installing: freetype;2.9.1-4.el8_3.1;x86_64;ol8_baseos_latest
+Installing: fontconfig;2.13.1-3.el8;x86_64;ol8_baseos_latest
+Installing: binutils;2.30-79.0.1.el8;x86_64;ol8_baseos_latest
+Installing: tar;2:1.30-5.el8;x86_64;ol8_baseos_latest
+Installing: gzip;1.9-9.el8;x86_64;ol8_baseos_latest
+Complete.
++ microdnf clean all
+Complete.
+Removing intermediate container 25e226f0b843
+ ---> ef61074598af
+Step 3/8 : ENV LANG C.UTF-8
+ ---> Running in 4bf1879e06c6
+Removing intermediate container 4bf1879e06c6
+ ---> fef7e045f37d
+Step 4/8 : ENV JAVA_HOME /usr/java/openjdk-16
+ ---> Running in 90aeb119e717
+Removing intermediate container 90aeb119e717
+ ---> bc036c911263
+Step 5/8 : ENV PATH $JAVA_HOME/bin:$PATH
+ ---> Running in 97e345e28806
+Removing intermediate container 97e345e28806
+ ---> ba25832cc4a5
+Step 6/8 : ENV JAVA_VERSION 16-ea+26
+ ---> Running in abe260d449dd
+Removing intermediate container abe260d449dd
+ ---> d572c4b788b6
+Step 7/8 : RUN set -eux;         objdump="$(command -v objdump)";     arch="$(objdump --file-headers "$objdump" | awk -F '[:,]+[[:space:]]+' '$1 == "architecture" { print $2 }')";     case "$arch" in     arm64 | aarch64)     downloadUrl=https://download.java.net/java/early_access/jdk16/26/GPL/openjdk-16-ea+26_linux-aarch64_bin.tar.gz;     downloadSha256=1e2fefe414a16aceeae6816b4e48b426e79bb647927a44bbfe4d692156096e74;     ;;     amd64 | i386:x86-64)     downloadUrl=https://download.java.net/java/early_access/jdk16/26/GPL/openjdk-16-ea+26_linux-x64_bin.tar.gz;     downloadSha256=e74300f3f770122358d768d45e181d29c710e8d41bbc4ab8e492929f2867347c;     ;;     *) echo >&2 "error: unsupported architecture: '$arch'"; exit 1 ;;     esac;         curl -fL -o openjdk.tgz "$downloadUrl";     echo "$downloadSha256 *openjdk.tgz" | sha256sum --strict --check -;         mkdir -p "$JAVA_HOME";     tar --extract     --file openjdk.tgz     --directory "$JAVA_HOME"     --strip-components 1     --no-same-owner     ;     rm openjdk.tgz;         ln -sfT "$JAVA_HOME" /usr/java/default;     ln -sfT "$JAVA_HOME" /usr/java/latest;     for bin in "$JAVA_HOME/bin/"*; do     base="$(basename "$bin")";     [ ! -e "/usr/bin/$base" ];     alternatives --install "/usr/bin/$base" "$base" "$bin" 20000;     done;         java -Xshare:dump;         rm -rf "$JAVA_HOME/lib/security/cacerts";     ln -sT /etc/pki/ca-trust/extracted/java/cacerts "$JAVA_HOME/lib/security/cacerts";         fileEncoding="$(echo 'System.out.println(System.getProperty("file.encoding"))' | jshell -s -)"; [ "$fileEncoding" = 'UTF-8' ]; rm -rf ~/.java;     javac --version;     java --version
+ ---> Running in 4fb5268d61d0
+++ command -v objdump
++ objdump=/usr/bin/objdump
+++ objdump --file-headers /usr/bin/objdump
+++ awk -F '[:,]+[[:space:]]+' '$1 == "architecture" { print $2 }'
++ arch=i386:x86-64
++ case "$arch" in
++ downloadUrl=https://download.java.net/java/early_access/jdk16/26/GPL/openjdk-16-ea+26_linux-x64_bin.tar.gz
++ downloadSha256=e74300f3f770122358d768d45e181d29c710e8d41bbc4ab8e492929f2867347c
++ curl -fL -o openjdk.tgz https://download.java.net/java/early_access/jdk16/26/GPL/openjdk-16-ea+26_linux-x64_bin.tar.gz
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100  175M  100  175M    0     0  3230k      0  0:00:55  0:00:55 --:--:-- 3967k
++ echo 'e74300f3f770122358d768d45e181d29c710e8d41bbc4ab8e492929f2867347c *openjdk.tgz'
++ sha256sum --strict --check -
+openjdk.tgz: OK
++ mkdir -p /usr/java/openjdk-16
++ tar --extract --file openjdk.tgz --directory /usr/java/openjdk-16 --strip-components 1 --no-same-owner
++ rm openjdk.tgz
++ ln -sfT /usr/java/openjdk-16 /usr/java/default
++ ln -sfT /usr/java/openjdk-16 /usr/java/latest
++ for bin in "$JAVA_HOME/bin/"*
+++ basename /usr/java/openjdk-16/bin/jar
++ base=jar
++ '[' '!' -e /usr/bin/jar ']'
++ alternatives --install /usr/bin/jar jar /usr/java/openjdk-16/bin/jar 20000
++ for bin in "$JAVA_HOME/bin/"*
+++ basename /usr/java/openjdk-16/bin/jarsigner
++ base=jarsigner
++ '[' '!' -e /usr/bin/jarsigner ']'
++ alternatives --install /usr/bin/jarsigner jarsigner /usr/java/openjdk-16/bin/jarsigner 20000
++ for bin in "$JAVA_HOME/bin/"*
+++ basename /usr/java/openjdk-16/bin/java
++ base=java
++ '[' '!' -e /usr/bin/java ']'
++ alternatives --install /usr/bin/java java /usr/java/openjdk-16/bin/java 20000
++ for bin in "$JAVA_HOME/bin/"*
+++ basename /usr/java/openjdk-16/bin/javac
++ base=javac
++ '[' '!' -e /usr/bin/javac ']'
++ alternatives --install /usr/bin/javac javac /usr/java/openjdk-16/bin/javac 20000
++ for bin in "$JAVA_HOME/bin/"*
+++ basename /usr/java/openjdk-16/bin/javadoc
++ base=javadoc
++ '[' '!' -e /usr/bin/javadoc ']'
++ alternatives --install /usr/bin/javadoc javadoc /usr/java/openjdk-16/bin/javadoc 20000
++ for bin in "$JAVA_HOME/bin/"*
+++ basename /usr/java/openjdk-16/bin/javap
++ base=javap
++ '[' '!' -e /usr/bin/javap ']'
++ alternatives --install /usr/bin/javap javap /usr/java/openjdk-16/bin/javap 20000
++ for bin in "$JAVA_HOME/bin/"*
+++ basename /usr/java/openjdk-16/bin/jcmd
++ base=jcmd
++ '[' '!' -e /usr/bin/jcmd ']'
++ alternatives --install /usr/bin/jcmd jcmd /usr/java/openjdk-16/bin/jcmd 20000
++ for bin in "$JAVA_HOME/bin/"*
+++ basename /usr/java/openjdk-16/bin/jconsole
++ base=jconsole
++ '[' '!' -e /usr/bin/jconsole ']'
++ alternatives --install /usr/bin/jconsole jconsole /usr/java/openjdk-16/bin/jconsole 20000
++ for bin in "$JAVA_HOME/bin/"*
+++ basename /usr/java/openjdk-16/bin/jdb
++ base=jdb
++ '[' '!' -e /usr/bin/jdb ']'
++ alternatives --install /usr/bin/jdb jdb /usr/java/openjdk-16/bin/jdb 20000
++ for bin in "$JAVA_HOME/bin/"*
+++ basename /usr/java/openjdk-16/bin/jdeprscan
++ base=jdeprscan
++ '[' '!' -e /usr/bin/jdeprscan ']'
++ alternatives --install /usr/bin/jdeprscan jdeprscan /usr/java/openjdk-16/bin/jdeprscan 20000
++ for bin in "$JAVA_HOME/bin/"*
+++ basename /usr/java/openjdk-16/bin/jdeps
++ base=jdeps
++ '[' '!' -e /usr/bin/jdeps ']'
++ alternatives --install /usr/bin/jdeps jdeps /usr/java/openjdk-16/bin/jdeps 20000
++ for bin in "$JAVA_HOME/bin/"*
+++ basename /usr/java/openjdk-16/bin/jfr
++ base=jfr
++ '[' '!' -e /usr/bin/jfr ']'
++ alternatives --install /usr/bin/jfr jfr /usr/java/openjdk-16/bin/jfr 20000
++ for bin in "$JAVA_HOME/bin/"*
+++ basename /usr/java/openjdk-16/bin/jhsdb
++ base=jhsdb
++ '[' '!' -e /usr/bin/jhsdb ']'
++ alternatives --install /usr/bin/jhsdb jhsdb /usr/java/openjdk-16/bin/jhsdb 20000
++ for bin in "$JAVA_HOME/bin/"*
+++ basename /usr/java/openjdk-16/bin/jimage
++ base=jimage
++ '[' '!' -e /usr/bin/jimage ']'
++ alternatives --install /usr/bin/jimage jimage /usr/java/openjdk-16/bin/jimage 20000
++ for bin in "$JAVA_HOME/bin/"*
+++ basename /usr/java/openjdk-16/bin/jinfo
++ base=jinfo
++ '[' '!' -e /usr/bin/jinfo ']'
++ alternatives --install /usr/bin/jinfo jinfo /usr/java/openjdk-16/bin/jinfo 20000
++ for bin in "$JAVA_HOME/bin/"*
+++ basename /usr/java/openjdk-16/bin/jlink
++ base=jlink
++ '[' '!' -e /usr/bin/jlink ']'
++ alternatives --install /usr/bin/jlink jlink /usr/java/openjdk-16/bin/jlink 20000
++ for bin in "$JAVA_HOME/bin/"*
+++ basename /usr/java/openjdk-16/bin/jmap
++ base=jmap
++ '[' '!' -e /usr/bin/jmap ']'
++ alternatives --install /usr/bin/jmap jmap /usr/java/openjdk-16/bin/jmap 20000
++ for bin in "$JAVA_HOME/bin/"*
+++ basename /usr/java/openjdk-16/bin/jmod
++ base=jmod
++ '[' '!' -e /usr/bin/jmod ']'
++ alternatives --install /usr/bin/jmod jmod /usr/java/openjdk-16/bin/jmod 20000
++ for bin in "$JAVA_HOME/bin/"*
+++ basename /usr/java/openjdk-16/bin/jpackage
++ base=jpackage
++ '[' '!' -e /usr/bin/jpackage ']'
++ alternatives --install /usr/bin/jpackage jpackage /usr/java/openjdk-16/bin/jpackage 20000
++ for bin in "$JAVA_HOME/bin/"*
+++ basename /usr/java/openjdk-16/bin/jps
++ base=jps
++ '[' '!' -e /usr/bin/jps ']'
++ alternatives --install /usr/bin/jps jps /usr/java/openjdk-16/bin/jps 20000
++ for bin in "$JAVA_HOME/bin/"*
+++ basename /usr/java/openjdk-16/bin/jrunscript
++ base=jrunscript
++ '[' '!' -e /usr/bin/jrunscript ']'
++ alternatives --install /usr/bin/jrunscript jrunscript /usr/java/openjdk-16/bin/jrunscript 20000
++ for bin in "$JAVA_HOME/bin/"*
+++ basename /usr/java/openjdk-16/bin/jshell
++ base=jshell
++ '[' '!' -e /usr/bin/jshell ']'
++ alternatives --install /usr/bin/jshell jshell /usr/java/openjdk-16/bin/jshell 20000
++ for bin in "$JAVA_HOME/bin/"*
+++ basename /usr/java/openjdk-16/bin/jstack
++ base=jstack
++ '[' '!' -e /usr/bin/jstack ']'
++ alternatives --install /usr/bin/jstack jstack /usr/java/openjdk-16/bin/jstack 20000
++ for bin in "$JAVA_HOME/bin/"*
+++ basename /usr/java/openjdk-16/bin/jstat
++ base=jstat
++ '[' '!' -e /usr/bin/jstat ']'
++ alternatives --install /usr/bin/jstat jstat /usr/java/openjdk-16/bin/jstat 20000
++ for bin in "$JAVA_HOME/bin/"*
+++ basename /usr/java/openjdk-16/bin/jstatd
++ base=jstatd
++ '[' '!' -e /usr/bin/jstatd ']'
++ alternatives --install /usr/bin/jstatd jstatd /usr/java/openjdk-16/bin/jstatd 20000
++ for bin in "$JAVA_HOME/bin/"*
+++ basename /usr/java/openjdk-16/bin/keytool
++ base=keytool
++ '[' '!' -e /usr/bin/keytool ']'
++ alternatives --install /usr/bin/keytool keytool /usr/java/openjdk-16/bin/keytool 20000
++ for bin in "$JAVA_HOME/bin/"*
+++ basename /usr/java/openjdk-16/bin/rmid
++ base=rmid
++ '[' '!' -e /usr/bin/rmid ']'
++ alternatives --install /usr/bin/rmid rmid /usr/java/openjdk-16/bin/rmid 20000
++ for bin in "$JAVA_HOME/bin/"*
+++ basename /usr/java/openjdk-16/bin/rmiregistry
++ base=rmiregistry
++ '[' '!' -e /usr/bin/rmiregistry ']'
++ alternatives --install /usr/bin/rmiregistry rmiregistry /usr/java/openjdk-16/bin/rmiregistry 20000
++ for bin in "$JAVA_HOME/bin/"*
+++ basename /usr/java/openjdk-16/bin/serialver
++ base=serialver
++ '[' '!' -e /usr/bin/serialver ']'
++ alternatives --install /usr/bin/serialver serialver /usr/java/openjdk-16/bin/serialver 20000
++ java -Xshare:dump
++ rm -rf /usr/java/openjdk-16/lib/security/cacerts
++ ln -sT /etc/pki/ca-trust/extracted/java/cacerts /usr/java/openjdk-16/lib/security/cacerts
+++ echo 'System.out.println(System.getProperty("file.encoding"))'
+++ jshell -s -
+Dec 03, 2020 8:22:57 AM java.util.prefs.FileSystemPreferences$1 run
+INFO: Created user preferences directory.
++ fileEncoding=UTF-8
++ '[' UTF-8 = UTF-8 ']'
++ rm -rf /root/.java
++ javac --version
+javac 16-ea
++ java --version
+openjdk 16-ea 2021-03-16
+OpenJDK Runtime Environment (build 16-ea+26-1764)
+OpenJDK 64-Bit Server VM (build 16-ea+26-1764, mixed mode, sharing)
+Removing intermediate container 4fb5268d61d0
+ ---> 4977811550e4
+Step 8/8 : CMD ["jshell"]
+ ---> Running in a8e86dade5ba
+Removing intermediate container a8e86dade5ba
+ ---> 5f8c9c216fd9
+Successfully built 5f8c9c216fd9
+Successfully tagged myjdk:v1
+
+   15:23:17   ~/Documents/dockerTmp/Docker-training-4-12-2020 
+   
