@@ -1,0 +1,28 @@
+version: "2"
+services:
+  reader:
+    image: anutech2001/reader
+    ports:
+     - "8010:8010"
+    restart: always
+    links:
+     - bookstore
+     - zipkin
+    labels:
+      kompose.service.type: NodePort
+  bookstore:
+    image: anutech2001/bookstore
+    ports:
+     - "8011:8011"
+    restart: always
+    labels:
+      kompose.service.type: NodePort
+    links:
+     - zipkin
+  zipkin:
+    image: openzipkin/zipkin
+    ports:
+     - "9411:9411"
+    restart: always
+    labels:
+      kompose.service.type: NodePort
